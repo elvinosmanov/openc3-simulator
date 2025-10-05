@@ -1,0 +1,12 @@
+# Set VARIABLEs here to allow variation in your plugin
+# See https://docs.openc3.com/docs/configuration/plugins for more information
+VARIABLE fakesat_target_name FAKESAT
+VARIABLE fakesat_int_name FAKESAT_INT
+
+TARGET FAKESAT <%= fakesat_target_name %>
+  LOG_RETAIN_TIME 360000 # 10 hrs
+  REDUCED_LOG_RETAIN_TIME 360000 # 10hrs
+  TLM_LOG_CYCLE_TIME 300
+
+INTERFACE <%= fakesat_int_name %> simulated_target_interface.rb sim_sat.rb
+  MAP_TARGET <%= fakesat_target_name %>

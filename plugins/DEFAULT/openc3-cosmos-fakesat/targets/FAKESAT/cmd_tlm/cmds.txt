@@ -1,0 +1,80 @@
+COMMAND <%= target_name %> NOOP BIG_ENDIAN "NOOP"
+  <%= render "_ccsds_cmd.txt", locals: {apid: 1} %>
+  APPEND_PARAMETER IGNORE 8 UINT MIN MAX 0 "Ignored item"
+
+COMMAND <%= target_name %> COLLECT BIG_ENDIAN "Starts a collect on the <%= target_name %> target"
+  <%= render "_ccsds_cmd.txt", locals: {apid: 2} %>
+  APPEND_PARAMETER TYPE 16  UINT MIN MAX 0 "Collect type"
+    REQUIRED
+    STATE NORMAL  0
+    STATE SPECIAL 1 HAZARDOUS
+  APPEND_PARAMETER DURATION 32  FLOAT 0.0 10.0 1.0 "Collect duration"
+  APPEND_PARAMETER OPCODE 8  UINT 0x0 0xFF 0xAB "Collect opcode"
+    FORMAT_STRING "0x%0X"
+  APPEND_PARAMETER TEMP 32  FLOAT 0.0 25.0 0.0 "Collect temperature"
+    UNITS Celsius C
+
+COMMAND <%= target_name %> ABORT BIG_ENDIAN "Aborts a collect on the <%= target_name %> instrument"
+  <%= render "_ccsds_cmd.txt", locals: {apid: 3} %>
+  APPEND_PARAMETER IGNORE 8 UINT MIN MAX 0 "Ignored item"
+
+COMMAND <%= target_name %> CLEAR BIG_ENDIAN "Clears counters on the <%= target_name %> instrument"
+  HAZARDOUS "Clearing counters may lose valuable information."
+  <%= render "_ccsds_cmd.txt", locals: {apid: 4} %>
+  APPEND_PARAMETER IGNORE 8 UINT MIN MAX 0 "Ignored item"
+
+COMMAND <%= target_name %> SET_MODE BIG_ENDIAN "Change spacecraft mode"
+  <%= render "_ccsds_cmd.txt", locals: {apid: 5} %>
+  APPEND_PARAMETER MODE 8 UINT 0 2 0 "Desired Mode"
+    REQUIRED
+    STATE SAFE 0
+    STATE CHECKOUT 1
+    STATE OPERATE 2
+
+COMMAND <%= target_name %> SLRPNLDEPLOY BIG_ENDIAN "Deploy solar array panel"
+  <%= render "_ccsds_cmd.txt", locals: {apid: 6} %>
+  APPEND_PARAMETER NUM 8 UINT 1 2 1 "Solar Array Number"
+
+COMMAND <%= target_name %> SLRPNLSTOW BIG_ENDIAN "Stow solar array panel"
+  <%= render "_ccsds_cmd.txt", locals: {apid: 7} %>
+  APPEND_PARAMETER NUM 8 UINT 1 2 1 "Solar Array Number"
+
+COMMAND <%= target_name %> SLRPNLANG BIG_ENDIAN "Set Solar Array Panel Angle"
+  <%= render "_ccsds_cmd.txt", locals: {apid: 8} %>
+  APPEND_PARAMETER NUM 8 UINT 1 2 1 "Solar Array Number"
+  APPEND_PARAMETER ANG 32 FLOAT 0 360 0 "Solar Array Angle"
+    UNITS DEGREES DEG
+
+COMMAND <%= target_name %> TABLE_LOAD BIG_ENDIAN "Load table"
+  <%= render "_ccsds_cmd.txt", locals: {apid: 9} %>
+  APPEND_PARAMETER DATA 80 BLOCK "" "Table data"
+
+COMMAND <%= target_name %> HTR_CTRL BIG_ENDIAN "Heater Control ON/OFF"
+  <%= render "_ccsds_cmd.txt", locals: {apid: 10} %>
+  APPEND_PARAMETER NUM 8 UINT 1 2 1 "Heater Number"
+  APPEND_PARAMETER STATE 8 UINT 0 1 0 "Desired State"
+    STATE OFF 0 HAZARDOUS
+    STATE ON 1
+
+COMMAND <%= target_name %> HTR_STATE BIG_ENDIAN "Heater State ON/OFF"
+  <%= render "_ccsds_cmd.txt", locals: {apid: 11} %>
+  APPEND_PARAMETER NUM 8 UINT 1 2 1 "Heater Number"
+  APPEND_PARAMETER STATE 8 UINT 0 1 0 "Desired State"
+    STATE OFF 0
+    STATE ON 1
+
+COMMAND <%= target_name %> HTR_SETPT BIG_ENDIAN "Heater Setpoint"
+  <%= render "_ccsds_cmd.txt", locals: {apid: 12} %>
+  APPEND_PARAMETER NUM 8 UINT 1 2 1 "Heater Number"
+  APPEND_PARAMETER SETPT 32 FLOAT -100 100 0 "Setpoint"
+
+COMMAND <%= target_name %> ADCS_CTRL BIG_ENDIAN "ADCS Control of Solar Panel Angle ON/OFF"
+  <%= render "_ccsds_cmd.txt", locals: {apid: 13} %>
+  APPEND_PARAMETER STATE 8 UINT 0 1 0 "Desired State"
+    STATE OFF 0 HAZARDOUS
+    STATE ON 1
+
+COMMAND <%= target_name %> SET_TEST_TEMP BIG_ENDIAN "Set Test Temperature"
+  <%= render "_ccsds_cmd.txt", locals: {apid: 14} %>
+  APPEND_PARAMETER NEW_TEMP 32 FLOAT MIN MAX 0.0 "New Test Temperature Value"
+

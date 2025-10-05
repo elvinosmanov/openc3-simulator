@@ -1,0 +1,125 @@
+COMMAND <%= target_name %> NOOP BIG_ENDIAN "NOOP"
+  <%= render "_ccsds_cmd.txt", locals: {apid: 1} %>
+  APPEND_PARAMETER IGNORE 8 UINT MIN MAX 0 "Ignored item"
+
+COMMAND <%= target_name %> COLLECT BIG_ENDIAN "Starts a collect on the <%= target_name %> target"
+  <%= render "_ccsds_cmd.txt", locals: {apid: 2} %>
+  APPEND_PARAMETER TYPE 16  UINT MIN MAX 0 "Collect type"
+    REQUIRED
+    STATE NORMAL  0
+    STATE SPECIAL 1 HAZARDOUS
+  APPEND_PARAMETER DURATION 32  FLOAT 0.0 10.0 1.0 "Collect duration"
+  APPEND_PARAMETER OPCODE 8  UINT 0x0 0xFF 0xAB "Collect opcode"
+    FORMAT_STRING "0x%0X"
+  APPEND_PARAMETER TEMP 32  FLOAT 0.0 25.0 0.0 "Collect temperature"
+    UNITS Celsius C
+
+COMMAND <%= target_name %> ABORT BIG_ENDIAN "Aborts a collect on the <%= target_name %> instrument"
+  <%= render "_ccsds_cmd.txt", locals: {apid: 3} %>
+  APPEND_PARAMETER IGNORE 8 UINT MIN MAX 0 "Ignored item"
+
+COMMAND <%= target_name %> CLEAR BIG_ENDIAN "Clears counters on the <%= target_name %> instrument"
+  HAZARDOUS "Clearing counters may lose valuable information."
+  <%= render "_ccsds_cmd.txt", locals: {apid: 4} %>
+  APPEND_PARAMETER IGNORE 8 UINT MIN MAX 0 "Ignored item"
+
+COMMAND <%= target_name %> SET_MODE BIG_ENDIAN "Change spacecraft mode"
+  <%= render "_ccsds_cmd.txt", locals: {apid: 5} %>
+  APPEND_PARAMETER MODE 8 UINT 0 2 0 "Desired Mode"
+    REQUIRED
+    STATE SAFE 0
+    STATE CHECKOUT 1
+    STATE OPERATE 2
+
+COMMAND <%= target_name %> SLRPNLDEPLOY BIG_ENDIAN "Deploy solar array panel"
+  <%= render "_ccsds_cmd.txt", locals: {apid: 6} %>
+  APPEND_PARAMETER NUM 8 UINT 1 2 1 "Solar Array Number"
+
+COMMAND <%= target_name %> SLRPNLSTOW BIG_ENDIAN "Stow solar array panel"
+  <%= render "_ccsds_cmd.txt", locals: {apid: 7} %>
+  APPEND_PARAMETER NUM 8 UINT 1 2 1 "Solar Array Number"
+
+COMMAND <%= target_name %> SLRPNLANG BIG_ENDIAN "Set Solar Array Panel Angle"
+  <%= render "_ccsds_cmd.txt", locals: {apid: 8} %>
+  APPEND_PARAMETER NUM 8 UINT 1 2 1 "Solar Array Number"
+  APPEND_PARAMETER ANG 32 FLOAT 0 360 0 "Solar Array Angle"
+    UNITS DEGREES DEG
+
+COMMAND <%= target_name %> HTR_CTRL BIG_ENDIAN "Heater Control ON/OFF"
+  <%= render "_ccsds_cmd.txt", locals: {apid: 10} %>
+  APPEND_PARAMETER NUM 8 UINT 1 2 1 "Heater Number"
+  APPEND_PARAMETER STATE 8 UINT 0 1 0 "Desired State"
+    STATE OFF 0 HAZARDOUS
+    STATE ON 1
+
+COMMAND <%= target_name %> HTR_STATE BIG_ENDIAN "Heater State ON/OFF"
+  <%= render "_ccsds_cmd.txt", locals: {apid: 11} %>
+  APPEND_PARAMETER NUM 8 UINT 1 2 1 "Heater Number"
+  APPEND_PARAMETER STATE 8 UINT 0 1 0 "Desired State"
+    STATE OFF 0
+    STATE ON 1
+
+COMMAND <%= target_name %> HTR_SETPT BIG_ENDIAN "Heater Setpoint"
+  <%= render "_ccsds_cmd.txt", locals: {apid: 12} %>
+  APPEND_PARAMETER NUM 8 UINT 1 2 1 "Heater Number"
+  APPEND_PARAMETER SETPT 32 FLOAT -100 100 0 "Setpoint"
+
+COMMAND <%= target_name %> ADCS_CTRL BIG_ENDIAN "ADCS Control of Solar Panel Angle ON/OFF"
+  <%= render "_ccsds_cmd.txt", locals: {apid: 13} %>
+  APPEND_PARAMETER STATE 8 UINT 0 1 0 "Desired State"
+    STATE OFF 0 HAZARDOUS
+    STATE ON 1
+
+# ========================================
+# COMMUNICATIONS SUBSYSTEM COMMANDS
+# ========================================
+
+COMMAND <%= target_name %> ANT_DEPLOY BIG_ENDIAN "Deploy communications antenna"
+  # APID 15: Deploys specified antenna from stowed to deployed state
+  # Takes ~10 seconds to complete deployment
+  <%= render "_ccsds_cmd.txt", locals: {apid: 15} %>
+  APPEND_PARAMETER ANT_NUM 8 UINT 1 2 1 "Antenna Number (1=primary, 2=backup)"
+    REQUIRED
+  APPEND_PARAMETER TYPE 8 UINT 0 1 0 "Antenna Type"
+    REQUIRED
+    STATE LOW_GAIN 0   # Omnidirectional, lower data rate, less power
+    STATE HIGH_GAIN 1  # Directional, higher data rate, more power
+
+COMMAND <%= target_name %> ANT_STOW BIG_ENDIAN "Stow communications antenna"
+  # APID 16: Stows specified antenna from deployed to stowed state
+  # Takes ~8 seconds to complete stowing
+  <%= render "_ccsds_cmd.txt", locals: {apid: 16} %>
+  APPEND_PARAMETER ANT_NUM 8 UINT 1 2 1 "Antenna Number (1=primary, 2=backup)"
+    REQUIRED
+
+COMMAND <%= target_name %> SET_ANT_ANGLE BIG_ENDIAN "Set antenna pointing angle"
+  # APID 17: Points deployed antenna to specified azimuth/elevation
+  # Only works when antenna is in DEPLOYED state
+  <%= render "_ccsds_cmd.txt", locals: {apid: 17} %>
+  APPEND_PARAMETER ANT_NUM 8 UINT 1 2 1 "Antenna Number (1=primary, 2=backup)"
+    REQUIRED
+  APPEND_PARAMETER AZIMUTH 32 FLOAT 0.0 360.0 0.0 "Azimuth angle"
+    UNITS DEGREES DEG
+  APPEND_PARAMETER ELEVATION 32 FLOAT 0.0 90.0 0.0 "Elevation angle"
+    UNITS DEGREES DEG
+
+COMMAND <%= target_name %> START_DOWNLINK BIG_ENDIAN "Start data downlink"
+  # APID 18: Begins transmitting data from onboard buffer to ground
+  # Requires at least one antenna to be deployed
+  # Power consumption varies by data rate: LOW=10W, MEDIUM=25W, HIGH=75W
+  <%= render "_ccsds_cmd.txt", locals: {apid: 18} %>
+  APPEND_PARAMETER DATA_RATE 8 UINT 0 2 0 "Data transmission rate"
+    REQUIRED
+    STATE LOW 0      # 10 Mbps, low power, slow buffer drain
+    STATE MEDIUM 1   # 25 Mbps, medium power, medium buffer drain
+    STATE HIGH 2     # 75 Mbps, high power, fast buffer drain
+  APPEND_PARAMETER DURATION 16 UINT 1 300 30 "Downlink duration in seconds"
+    UNITS SECONDS S
+
+COMMAND <%= target_name %> STOP_DOWNLINK BIG_ENDIAN "Stop active downlink"
+  # APID 19: Immediately terminates active data downlink
+  # Can only be used when downlink is ACTIVE
+  <%= render "_ccsds_cmd.txt", locals: {apid: 19} %>
+  APPEND_PARAMETER IGNORE 8 UINT MIN MAX 0 "Ignored item"
+
+

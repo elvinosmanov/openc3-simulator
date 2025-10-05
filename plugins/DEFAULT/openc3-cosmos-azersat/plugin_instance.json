@@ -1,0 +1,24 @@
+{
+  "name": "openc3-cosmos-azersat-0.0.0.20251005141153.gem__20251005101720",
+  "variables": {
+    "azersat_target_name": "AZERSAT",
+    "azersat_int_name": "AZERSAT_INT"
+  },
+  "plugin_txt_lines": [
+    "# Set VARIABLEs here to allow variation in your plugin",
+    "# See https://docs.openc3.com/docs/configuration/plugins for more information",
+    "VARIABLE azersat_target_name AZERSAT",
+    "VARIABLE azersat_int_name AZERSAT_INT",
+    "",
+    "TARGET AZERSAT <%= azersat_target_name %>",
+    "  LOG_RETAIN_TIME 360000 # 10 hrs",
+    "  REDUCED_LOG_RETAIN_TIME 360000 # 10hrs",
+    "  TLM_LOG_CYCLE_TIME 300",
+    "",
+    "INTERFACE <%= azersat_int_name %> simulated_target_interface.rb sim_sat.rb",
+    "  MAP_TARGET <%= azersat_target_name %>"
+  ],
+  "needs_dependencies": false,
+  "store_id": null,
+  "updated_at": 1759659440828651256
+}
